@@ -1,9 +1,8 @@
 import streamlit as st
+from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
 import cv2
-from PIL import Image
 import numpy as np
 from tensorflow.keras.models import load_model
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 
 class DrowsinessDetection(VideoTransformerBase):
     def __init__(self, model):
@@ -40,19 +39,20 @@ class DrowsinessDetection(VideoTransformerBase):
 
         return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-st.title("Welcome to Driver's Drowsiness System")
-st.write("This system uses a deep learning model to detect drowsiness in drivers.")
-st.write("If the system detects closed eyes for a longer period, it will sound an alarm to alert the driver.")
+def main():
+    st.title("Welcome to Driver's Drowsiness System")
+    st.write("This system uses a deep learning model to detect drowsiness in drivers.")
+    st.write("If the system detects closed eyes for a longer period, it will sound an alarm to alert the driver.")
 
-def run_drowsiness_detection():
     try:
         model = load_model(r'model/model.h5')
     except Exception as e:
         st.error(f"Error loading the model: {e}")
         return
 
-    webrtc_streamer(key="example", video_transformer_factory=lambda: DrowsinessDetection(model))
+    webrtc_ctx = webrtc_streamer(key="example", video_transformer_factory=lambda: DrowsinessDetection(model))
+    if not webrtc_ctx.state.playing:
+        st.warning("Please allow access to your webcam.")
 
-# Run drowsiness detection when button is clicked
-if st.button("Try Drowsiness Detection"):
-    run_drowsiness_detection()
+if __name__ == "__main__":
+    main()
