@@ -2,6 +2,7 @@ import streamlit as st
 import cv2
 from PIL import Image
 import numpy as np
+from tensorflow.keras.models import load_model
 
 st.title("Welcome to Driver's Drowsiness System")
 st.write("This system uses a deep learning model to detect drowsiness in drivers.")
@@ -9,9 +10,14 @@ st.write("If the system detects closed eyes for a longer period, it will sound a
 
 # Function to run the drowsiness detection
 def run_drowsiness_detection():
+    try:
+        model = load_model(r'model/model.h5')
+    except Exception as e:
+        st.error(f"Error loading the model: {e}")
+        return
+
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
-    model = load_model(r'model/model.h5')
     score = 0
 
     cap = cv2.VideoCapture(0)
