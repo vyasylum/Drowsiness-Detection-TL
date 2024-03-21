@@ -4,4 +4,4 @@ numpy==1.26.3
 pygame==2.5.2
 opencv-python-headless==4.9.0.80
 streamlit==1.0.0
-streamlit_webrtc
+streamlit_webrtc==0.47.1
