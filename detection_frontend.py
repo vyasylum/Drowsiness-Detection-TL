@@ -3,7 +3,7 @@ from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
 import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
-
+webrtc_ctx = webrtc_streamer(key="sample")
 class DrowsinessDetection(VideoTransformerBase):
     def __init__(self, model):
         self.model = model
