@@ -61,7 +61,6 @@ def run_drowsiness_detection():
             stframe.image(frame, channels="BGR")
 
     cap.release()
-    cv2.destroyAllWindows()
 
 # Run drowsiness detection when button is clicked
 if st.button("Try Drowsiness Detection"):
