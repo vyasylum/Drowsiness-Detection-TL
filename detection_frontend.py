@@ -1,58 +1,77 @@
-import streamlit as st
-from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
+import logging
+import queue
+from pathlib import Path
+from typing import List, NamedTuple
+
+import av
 import cv2
 import numpy as np
-from tensorflow.keras.models import load_model
-webrtc_ctx = webrtc_streamer(key="sample")
-class DrowsinessDetection(VideoTransformerBase):
-    def __init__(self, model):
-        self.model = model
-        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        self.eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
-        self.score = 0
+import streamlit as st
+from streamlit_webrtc import WebRtcMode, webrtc_streamer
 
-    def transform(self, frame):
-        img = frame.to_ndarray(format="bgr24")
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# Load the drowsiness detection model
+@st.cache(allow_output_mutation=True)
+def load_drowsiness_model():
+    model_path = "model/model.h5"  # Adjust the path accordingly
+    return load_model(model_path)
 
-        faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=3)
-        eyes = self.eye_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=1)
+model = load_drowsiness_model()
 
-        for (ex, ey, ew, eh) in eyes:
-            eye = img[ey:ey+eh, ex:ex+ew]
-            eye = cv2.resize(eye, (80, 80))
-            eye = eye / 255
-            eye = eye.reshape(80, 80, 3)
-            eye = np.expand_dims(eye, axis=0)
+# Define the drowsiness detection function
+def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
+    if model is None:
+        return frame
 
-            prediction = self.model.predict(eye)
+    image = frame.to_ndarray(format="bgr24")
 
-            if prediction[0][0] > 0.30:
-                self.score += 1
-                if self.score > 5:
-                    st.error("Drowsiness detected! Please wake up.")
-                    break
-            else:
-                self.score -= 1
-                if self.score < 0:
-                    self.score = 0
+    # Convert the frame to grayscale for drowsiness detection
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # Your drowsiness detection logic here
+    # Use the `gray` image for detecting faces and eyes
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=3)
+    eyes = eye_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=1)
 
-def main():
-    st.title("Welcome to Driver's Drowsiness System")
-    st.write("This system uses a deep learning model to detect drowsiness in drivers.")
-    st.write("If the system detects closed eyes for a longer period, it will sound an alarm to alert the driver.")
+    # Process the detections and determine drowsiness
+    for (ex, ey, ew, eh) in eyes:
+        # Extract and preprocess the eye region
+        eye = gray[ey:ey+eh, ex:ex+ew]
+        eye = cv2.resize(eye, (80, 80))  # Resize the eye region
+        eye = eye / 255.0  # Normalize the pixel values
+        eye = np.expand_dims(eye, axis=0)  # Add batch dimension
 
-    try:
-        model = load_model(r'model/model.h5')
-    except Exception as e:
-        st.error(f"Error loading the model: {e}")
-        return
+        # Pass the preprocessed eye region to your model for prediction
+        prediction = model.predict(eye)
 
-    webrtc_ctx = webrtc_streamer(key="example", video_transformer_factory=lambda: DrowsinessDetection(model))
-    if not webrtc_ctx.state.playing:
-        st.warning("Please allow access to your webcam.")
+        # Analyze the prediction to determine drowsiness and take necessary actions
+        if prediction[0][0] > 0.30:
+            # Detected drowsiness
+            # Perform actions like sounding an alarm, displaying an alert, etc.
+            pass
 
-if __name__ == "__main__":
-    main()
+    # For demonstration purposes, let's just return the input frame
+    result_queue.put([])  # No detections
+
+    return frame
+
+# Set up the WebRTC streamer
+webrtc_ctx = webrtc_streamer(
+    key="drowsiness-detection",
+    mode=WebRtcMode.SENDRECV,
+    rtc_configuration={
+        "iceServers": get_ice_servers(),
+        "iceTransportPolicy": "relay",
+    },
+    video_processor_factory=lambda s: run_drowsiness_detection,
+    media_stream_constraints={"video": True, "audio": False},
+    async_processing=True,
+)
+
+# Display detected labels if checkbox is checked
+if st.checkbox("Show the detected labels", value=True):
+    if webrtc_ctx.state.playing:
+        labels_placeholder = st.empty()
+        while True:
+            result = result_queue.get()
+            labels_placeholder.table(result)
+
