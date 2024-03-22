@@ -50,12 +50,8 @@ def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
             # Detected drowsiness
             # Perform actions like sounding an alarm, displaying an alert, etc.
             drowsiness_detected = True
-            break
-
-    # Sound alarm and show warning if drowsiness is detected
-    if drowsiness_detected:
-        st.warning("Drowsiness detected!")
-        st.audio("alarm.wav", format="audio/wav")  # Play alarm sound
+            st.warning("Drowsiness detected!")
+            st.audio("alarm.wav", format="audio/wav")  # Play alarm sound
 
     return frame
 
