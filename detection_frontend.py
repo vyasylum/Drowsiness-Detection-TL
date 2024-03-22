@@ -4,10 +4,6 @@ import numpy as np
 import streamlit as st
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
 from tensorflow.keras.models import load_model
-from pygame import mixer  # Import mixer for sound alert
-import pygame 
-from sample_utils.download import download_file
-from sample_utils.turn import get_ice_servers
 
 # Page title and information
 st.title("Driver's Drowsiness Detection System")
@@ -21,12 +17,6 @@ def load_drowsiness_model():
     return load_model(model_path)
 
 model = load_drowsiness_model()
-
-# Suppress Pygame audio initialization error
-try:
-    mixer.init()
-except pygame.error:
-    pass
 
 # Define the drowsiness detection function
 def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
@@ -44,6 +34,7 @@ def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
     eyes = eye_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=1)
 
     # Process the detections and determine drowsiness
+    drowsiness_detected = False
     for (ex, ey, ew, eh) in eyes:
         # Extract and preprocess the eye region
         eye = gray[ey:ey+eh, ex:ex+ew]
@@ -58,12 +49,14 @@ def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
         if prediction[0][0] > 0.30:
             # Detected drowsiness
             # Perform actions like sounding an alarm, displaying an alert, etc.
-            sound = mixer.Sound(r'alarm.wav')
-            sound.play()  # Sound the alarm
-            st.warning("Drowsiness detected!")
+            drowsiness_detected = True
+            break
 
-    # For demonstration purposes, let's just return the input frame
+    # Sound alarm and show warning if drowsiness is detected
+    if drowsiness_detected:
+        st.warning("Drowsiness detected!")
+        st.audio("alarm.wav", format="audio/wav")  # Play alarm sound
+
     return frame
 
 webrtc_streamer(key="sample",  rtc_configuration={"iceServers": [{"urls": ["stun:global.stun.twilio.com:3478"]}]}, media_stream_constraints={"video": True, "audio": False} )
-
