@@ -59,11 +59,7 @@ def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
 
 # Set up the WebRTC streamer
 webrtc_ctx = webrtc_streamer(
-    key="drowsiness-detection",
-    mode=WebRtcMode.SENDRECV,
-    video_processor_factory=lambda s: run_drowsiness_detection,
-    media_stream_constraints={"video": True, "audio": False},
-    async_processing=True,
+    key="drowsiness-detection"
 )
 
 # Display detected labels if checkbox is checked
