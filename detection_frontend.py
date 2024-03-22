@@ -60,6 +60,7 @@ def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
             # Perform actions like sounding an alarm, displaying an alert, etc.
             sound = mixer.Sound(r'alarm.wav')
             sound.play()  # Sound the alarm
+            st.warning("Drowsiness detected!")
 
     # For demonstration purposes, let's just return the input frame
     return frame
