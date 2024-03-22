@@ -1,13 +1,11 @@
-import logging
 import queue
-from pathlib import Path
-from typing import List, NamedTuple
-
 import av
 import cv2
 import numpy as np
 import streamlit as st
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
+from tensorflow.keras.models import load_model
+from pygame import mixer  # Import mixer for sound alert
 
 # Load the drowsiness detection model
 @st.cache(allow_output_mutation=True)
@@ -16,6 +14,9 @@ def load_drowsiness_model():
     return load_model(model_path)
 
 model = load_drowsiness_model()
+
+# Set up the mixer for sound alert
+mixer.init()
 
 # Define the drowsiness detection function
 def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
@@ -47,11 +48,10 @@ def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
         if prediction[0][0] > 0.30:
             # Detected drowsiness
             # Perform actions like sounding an alarm, displaying an alert, etc.
-            pass
+            sound = mixer.Sound(r'alarm.wav')
+            sound.play()  # Sound the alarm
 
     # For demonstration purposes, let's just return the input frame
-    result_queue.put([])  # No detections
-
     return frame
 
 # Set up the WebRTC streamer
@@ -75,3 +75,9 @@ if st.checkbox("Show the detected labels", value=True):
             result = result_queue.get()
             labels_placeholder.table(result)
 
+# Acknowledgment
+st.markdown(
+    "This demo uses a model and code from "
+    "https://github.com/robmarkcole/object-detection-app. "
+    "Many thanks to the project."
+)
