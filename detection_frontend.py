@@ -7,8 +7,6 @@ from streamlit_webrtc import WebRtcMode, webrtc_streamer
 from tensorflow.keras.models import load_model
 from pygame import mixer  # Import mixer for sound alert
 import pygame 
-from sample_utils.download import download_file
-from sample_utils.turn import get_ice_servers
 # Load the drowsiness detection model
 @st.cache(allow_output_mutation=True)
 def load_drowsiness_model():
@@ -63,10 +61,6 @@ def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
 webrtc_ctx = webrtc_streamer(
     key="drowsiness-detection",
     mode=WebRtcMode.SENDRECV,
-    rtc_configuration={
-        "iceServers": get_ice_servers(),
-        "iceTransportPolicy": "relay",
-    },
     video_processor_factory=lambda s: run_drowsiness_detection,
     media_stream_constraints={"video": True, "audio": False},
     async_processing=True,
