@@ -6,7 +6,7 @@ import streamlit as st
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
 from tensorflow.keras.models import load_model
 from pygame import mixer  # Import mixer for sound alert
-
+import pygame
 # Load the drowsiness detection model
 @st.cache(allow_output_mutation=True)
 def load_drowsiness_model():
