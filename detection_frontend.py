@@ -8,7 +8,7 @@ from tensorflow.keras.models import load_model
 from pygame import mixer  # Import mixer for sound alert
 import pygame 
 
-webrtc_streamer(key="sample",  rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]} )# Load the drowsiness detection model
+webrtc_streamer(key="sample",  rtc_configuration={"iceServers": [{"urls": ["stun:stun.xten.com:3478"]}]} )# Load the drowsiness detection model
 # @st.cache(allow_output_mutation=True)
 # def load_drowsiness_model():
 #     model_path = "model/model.h5"  # Adjust the path accordingly
