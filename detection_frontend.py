@@ -15,8 +15,11 @@ def load_drowsiness_model():
 
 model = load_drowsiness_model()
 
-# Set up the mixer for sound alert
-mixer.init()
+# Suppress Pygame audio initialization error
+try:
+    mixer.init()
+except pygame.error:
+    pass
 
 # Define the drowsiness detection function
 def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
@@ -74,10 +77,3 @@ if st.checkbox("Show the detected labels", value=True):
         while True:
             result = result_queue.get()
             labels_placeholder.table(result)
-
-# Acknowledgment
-st.markdown(
-    "This demo uses a model and code from "
-    "https://github.com/robmarkcole/object-detection-app. "
-    "Many thanks to the project."
-)
