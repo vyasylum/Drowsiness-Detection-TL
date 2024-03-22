@@ -64,7 +64,5 @@ def run_drowsiness_detection(frame: av.VideoFrame) -> av.VideoFrame:
     # For demonstration purposes, let's just return the input frame
     return frame
 
-# Button to start webcam streaming
-if st.button("Start Webcam"):
-    webrtc_streamer(key="sample",  rtc_configuration={"iceServers": [{"urls": ["stun:global.stun.twilio.com:3478"]}]}, media_stream_constraints={"video": True, "audio": False} )
+webrtc_streamer(key="sample",  rtc_configuration={"iceServers": [{"urls": ["stun:global.stun.twilio.com:3478"]}]}, media_stream_constraints={"video": True, "audio": False} )
 
