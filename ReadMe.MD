@@ -27,7 +27,7 @@ Driver's Drowsiness Detection is a project aimed at detecting drowsiness in driv
  ## Demo
 
 You can check out the live demo [here](https://vyasylum.streamlit.app/). 
-Note: The demo might not work if you are accessing it from EU, NA/SA or Australia since the free server that was used is Asian.  
+Note: The demo might not work if you are accessing it from EU, NA/SA or Australia since the free server that was used was Asian.  
 ## Personal Note
 
 This application has made a significant impact on the safety of drivers in my institute, especially those who work night shifts as truck drivers. Making such projects for humanity always warms my heart, and knowing that it has helped prevent accidents and ensure the well-being of our drivers brings me great satisfaction.
